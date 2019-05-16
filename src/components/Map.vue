@@ -204,6 +204,7 @@ export default {
       this.mapInstance.setFilter(this.highlightMATSimLayer, highlightFilter);
     }
   }
+
 };
 </script>
 

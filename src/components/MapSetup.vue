@@ -78,11 +78,11 @@
                           id="inlineCheckbox1"
                           value="option1"
                           v-model="showSmoke"
-                          :disabled="this.$store.state.fire.selectedFire == null" 
+                          :disabled="this.$store.state.fire.selectedFire == null"
                         >
                         <label class="form-check-label" for="inlineCheckbox1">Smoke</label>
                       </div>
-                      
+
                     </b-form-group>
                   </b-col>
                 </b-row>
@@ -98,39 +98,55 @@
                     </div>
                   </div>
                 </div>
-                
+
               </b-collapse>
             </b-card>
-            <!--
+
             <b-card no-body class="mb-1">
-              <b-card-header v-b-toggle.collapse-dest>
-                Destinations and safe lines
+              <b-card-header v-b-toggle.collapse-incident>
+                Population
                 <span class="helper-icons">
                   <font-awesome-icon
                     icon="info-circle"
-                    v-b-popover.hover="helperOptions[2].text"
+                    v-b-popover.hover="helperOptions[4].text"
                   />
                 </span>
               </b-card-header>
-              <b-collapse visible id="collapse-dest">
+              <b-collapse visible id="collapse-incident">
                 <b-row>
-                  <b-col md="6" sm="6" xs="6">
-                    <b-form-select
-                      v-model="dest_selected"
-                      :options="dest_options"
-                    >
+                  <b-col md="8" sm="8" xs="8">
+                    <b-form-select id="map-population" v-model="selectedPopulation">
+                      <option
+
+                        @TODO v-for="fire in firesInSelectedRegion"
+                        :key="fire.id"
+                        :value="fire.id"
+                        :disabled="selectedFire == fire.id"
+                      >
+                        {{ fire.name }}
+                      </option>
                     </b-form-select>
                   </b-col>
-                  <b-col md="5" sm="5" xs="5">
-                    <b-button disabled size="sm" variant="success">
-                      <font-awesome-icon icon="plus-circle" />
-                      Draw safe line
-                    </b-button>
+                  <b-col md="4" sm="4" xs="4">
+                    <b-form-group>
+                      <div class="form-check form-check-inline">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="inlineCheckbox1"
+                          value="option1"
+                          v-model="showPopulation"
+                          :disabled="this.$store.state.population.selectedPopulation == null"
+                        >
+                        <label class="form-check-label" for="inlineCheckbox1">Show (test)</label>
+                      </div>
+
+                    </b-form-group>
                   </b-col>
                 </b-row>
               </b-collapse>
             </b-card>
-            -->
+
             <b-card no-body class="mb-1">
               <b-card-header v-b-toggle.collapse-traffic>Traffic Behaviour Setup</b-card-header>
               <b-collapse visible id="collapse-traffic">
@@ -229,7 +245,8 @@ export default {
         { value: 0, text: "If the location chosen has fire models, choose which one to use. Select whether to show visually on map.\nEvacuation can proceed without fire model, in which case No incident should be selected. If a fire model is selected, key attributes are displayed."},
         { value: 1, text: "Evac start is the time at which evacuation starts (announcement is made).\nIf there is a fire model, this should be some time after fire ignition attribute of chosen fire.\nEvac peak is the length of time after the start, at which the largest number of people are starting to leave.\nEvacuations are dispersed around the peak point."},
         { value: 2, text: "Potential destinations are indicated in location file. These provide direction of evacuation. If multiple destinations are given, evacuation is split between these (currently an equal split - future work will allow user specification).\nThe safe line is a line beyond which evacuees can be considered out of danger. Safe lines should be sufficiently long to cut all possible roads that could be used to a given destination. Only one safe line is allowed per destination. To draw line, click start point, release, click end point."},
-        { value: 3, text: "The simulator will modify speeds based on congestion. However in a bushfire additional factors (e.g. smoke) may affect possible speed. This allows that to be specified as a % of the normal speed. The setting will affect all roads in the network, not only those near the fire." }
+        { value: 3, text: "The simulator will modify speeds based on congestion. However in a bushfire additional factors (e.g. smoke) may affect possible speed. This allows that to be specified as a % of the normal speed. The setting will affect all roads in the network, not only those near the fire." },
+        { value: 4, text: "TODO: something about population" }
       ]
     };
   },
@@ -284,6 +301,14 @@ export default {
       },
       set(value) {
         this.$store.dispatch("showSmoke", value);
+      }
+    },
+    showPopulation: {
+      get() {
+        return this.$store.state.population.showPopulation;
+      },
+      set(value) {
+        this.$store.dispatch("showPopulation", value);
       }
     },
     fireOpacity: {
