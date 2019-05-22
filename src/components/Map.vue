@@ -29,7 +29,79 @@ import {
   MATSIM_DESELECT_LINK
 } from "@/store/mutation-types";
 import { mapState } from "vuex";
+var radius = 20;
+var count = -180;
+var dotlist = [];
+function getRandomInRange(from, to, fixed) {
+  return (Math.random() * (to - from) + from).toFixed(fixed) * 1;
+  // .toFixed() returns string, so ' * 1' is a trick to convert to number
+}
 
+function pointOnCircle(x,y) {
+  return {
+    type: "Point",
+    coordinates: [
+      x,
+      y
+    ]
+  };
+}
+
+function test() {
+  count = count + 1;
+  store.state.map.mapInstance.addSource(count.toString(), {
+    type: "geojson",
+    data: pointOnCircle(count,0)
+  });
+
+  store.state.map.mapInstance.addLayer({
+    id: count.toString(),
+    source: count.toString(),
+    type: "circle",
+    paint: {
+      "circle-radius": 1,
+      "circle-color": "#007cbf"
+    }
+  });
+
+    store.state.map.mapInstance.addSource(count.toString() + '_', {
+    type: "geojson",
+    data: pointOnCircle(count,10)
+  });
+
+  store.state.map.mapInstance.addLayer({
+    id: count.toString()+ '_',
+    source: count.toString()+ '_',
+    type: "circle",
+    paint: {
+      "circle-radius": 1,
+      "circle-color": "#007cbf"
+    }
+  });
+  // console.log(store.state.map.mapInstance.style.sourceCaches);
+
+  // Start the animation.
+  dotlist.push(store.state.map.mapInstance.getSource(count.toString()));
+  dotlist.push(store.state.map.mapInstance.getSource(count.toString()+'_'));
+
+
+  // animateMarker(0);
+}
+function animateMarker() {
+  // Update the data to a new position based on the animation timestamp. The
+  // divisor in the expression `timestamp / 1000` controls the animation speed.
+  console.log(dotlist[0]._data.coordinates)
+  for (let i = 0; i < dotlist.length; i++) {
+    var x = dotlist[i]._data.coordinates[0]
+    var y = dotlist[i]._data.coordinates[1]
+    y++
+    if (y == 90){ y = -90}
+    dotlist[i].setData(pointOnCircle(x,y));
+  }
+
+  // Request the next frame of the animation.
+  requestAnimationFrame(animateMarker);
+}
 export default {
   name: "maplayer",
   data: function() {
@@ -96,6 +168,14 @@ export default {
       store.commit("addPopulationSquare", feature);
     },
     mapOnClick(e) {
+      while (count <= 180) {
+        test();
+      }
+      console.log(dotlist[0])
+      animateMarker(0);
+      // Add a source and layer displaying a point which will be animated in a circle.
+
+      console.log(store.state.map);
       //List of Links
       var linkList =
         store.state.map.selectedMATSimLink == ""
